@@ -6,12 +6,9 @@ Example code for blog posts on [blog.glacius.org](https://blog.glacius.org), sho
 
 ```
 blog-examples/
-├── migrating-entities-in-a-poorly-designed-multi-tenant-system/
-│   ├── suboptimal-solution/
-│   └── clean-architecture-solution/
-├── another-future-post-title/
-│   ├── suboptimal-solution/
-│   └── improved-solution/
+├── post-title/
+│   ├── real-world-solution/
+│   └── ideal-solution/
 └── README.md
 ```
 
@@ -20,7 +17,7 @@ blog-examples/
 This repository contains example projects related to blog posts published on [glacius.org](https://glacius.org). Each directory corresponds to a specific post, featuring:
 
 - **Suboptimal Real-World Solutions:** Reflecting common mistakes or legacy design flaws and solutions within those architectures.
-- **Improved Clean Architecture Solutions:** Demonstrating best practices and architectural improvements.
+- **Ideal Clean Architecture Solutions:** Demonstrating best practices and architectural improvements.
 
 The goal is to illustrate architectural principles through practical code examples.
 
