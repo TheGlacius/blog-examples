@@ -28,10 +28,5 @@ public class Orchestrator(IEnumerable<IDiscoverer> discoverers, IEnumerable<IMig
         {
             migrator.Migrate(context);
         }
-        
-        foreach (var migrator in migrators)
-        {
-            migrator.Migrate(context);
-        }
     }
 }
