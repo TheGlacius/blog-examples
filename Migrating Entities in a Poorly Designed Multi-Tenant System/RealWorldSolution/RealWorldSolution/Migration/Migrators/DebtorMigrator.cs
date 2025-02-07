@@ -19,7 +19,7 @@ public class DebtorMigrator(DebtorRepository repository) : IMigrator
             }
             
             var destinationClerk = context
-                .GetMappedEntity(discoveredClerkParent);
+                .GetDestinationEntity(discoveredClerkParent);
             
             debtor.LawFirmId = destinationClerk.LawFirmId;
             debtor.ClerkId = destinationClerk.Id;

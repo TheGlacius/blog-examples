@@ -19,7 +19,7 @@ public class ClerkMigrator(ClerkRepository repository) : IMigrator
             }
 
             var destinationLawFirm = context
-                .GetMappedEntity(discoveredLawFirmParent);
+                .GetDestinationEntity(discoveredLawFirmParent);
             
             clerk.LawFirmId = destinationLawFirm.Id;
 

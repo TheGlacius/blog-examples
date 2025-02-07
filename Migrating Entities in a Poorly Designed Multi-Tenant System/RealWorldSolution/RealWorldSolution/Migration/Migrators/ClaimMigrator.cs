@@ -19,7 +19,7 @@ public class ClaimMigrator(ClaimRepository repository) : IMigrator
             }
             
             var destinationDebtor = context
-                .GetMappedEntity(discoveredDebtorParent);
+                .GetDestinationEntity(discoveredDebtorParent);
             
             claim.LawFirmId = destinationDebtor.LawFirmId;
             claim.DebtorId = destinationDebtor.Id;

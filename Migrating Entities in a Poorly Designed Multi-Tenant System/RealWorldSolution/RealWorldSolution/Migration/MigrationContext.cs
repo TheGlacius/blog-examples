@@ -39,7 +39,7 @@ public class MigrationContext
                discoveredEntitiesOfType.ContainsKey(entity);
     }
 
-    public T GetMappedEntity<T>(T entity) where T : class
+    public T GetDestinationEntity<T>(T entity) where T : class
     {
         return (T) _mappings[typeof(T)][entity];
     }
