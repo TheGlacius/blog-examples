@@ -14,9 +14,9 @@ public class Orchestrator(IEnumerable<IDiscoverer> discoverers, IEnumerable<IMig
             newEntitiesDiscovered = false;
             foreach (var discoverer in discoverers)
             {
-                var initialCount = context.GetEntities().Count();
+                var initialCount = context.GetDiscoveredCount();
                 discoverer.Discover(context);
-                if (context.GetEntities().Count() > initialCount)
+                if (context.GetDiscoveredCount() > initialCount)
                 {
                     newEntitiesDiscovered = true;
                 }
@@ -24,6 +24,11 @@ public class Orchestrator(IEnumerable<IDiscoverer> discoverers, IEnumerable<IMig
         } while (newEntitiesDiscovered);
 
         // Migration Phase
+        foreach (var migrator in migrators)
+        {
+            migrator.Migrate(context);
+        }
+        
         foreach (var migrator in migrators)
         {
             migrator.Migrate(context);

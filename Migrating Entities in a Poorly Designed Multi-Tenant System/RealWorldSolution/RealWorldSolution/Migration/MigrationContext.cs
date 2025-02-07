@@ -1,40 +1,54 @@
 ﻿namespace RealWorldSolution.Migration;
 
-public class MigrationContext()
+public class MigrationContext
 {
-    private readonly Dictionary<Type, Dictionary<Guid, Guid>> _mappings = new();
+    private readonly Dictionary<Type, Dictionary<object, object>> _mappings = new();
 
-    public void AddMapping<T>(Guid sourceId, Guid targetId) where T : class
+    public IEnumerable<T> GetDiscoveredEntitiesOfType<T>() where T : class
+    {
+        _mappings
+            .TryGetValue(typeof(T), out var discoveredEntities);
+            
+        return discoveredEntities?
+            .Keys
+            .Select(o => (T) o) ?? [];
+    }
+
+    public void RegisterMapping<T>(T from, T to) where T : class
     {
         if (!_mappings.ContainsKey(typeof(T)))
         {
-            _mappings[typeof(T)] = new Dictionary<Guid, Guid>();
+            _mappings[typeof(T)] = new Dictionary<object, object>();
         }
-        _mappings[typeof(T)][sourceId] = targetId;
+        _mappings[typeof(T)].Add(from, to);
+    }
+    
+    public void DiscoverEntity<T>(T entity) where T : class
+    {
+        if (!_mappings.ContainsKey(typeof(T)))
+        {
+            _mappings[typeof(T)] = [];
+        }
+        _mappings[typeof(T)].Add(entity, entity);
     }
 
-    public void DiscoverEntity<T>(Guid id) where T : class
+    public bool IsDiscovered<T>(T entity) where T : class
     {
-        AddMapping<T>(id, id);
+        return _mappings
+            .TryGetValue(typeof(T), out var discoveredEntitiesOfType) && 
+               discoveredEntitiesOfType.ContainsKey(entity);
     }
 
-    public Guid GetMappedId<T>(Guid sourceId) where T : class
+    public T GetMappedEntity<T>(T entity) where T : class
     {
-        return _mappings[typeof(T)][sourceId];
+        return (T) _mappings[typeof(T)][entity];
     }
 
-    public bool HasMapping<T>(Guid sourceId) where T : class
+    public int GetDiscoveredCount()
     {
-        return _mappings.TryGetValue(typeof(T), out var map) && map.ContainsKey(sourceId);
-    }
-
-    public Dictionary<Guid, Guid> GetMappingsFor<T>() where T : class
-    {
-        return _mappings.TryGetValue(typeof(T), out var map) ? map : new Dictionary<Guid, Guid>();
-    }
-
-    public IEnumerable<Guid> GetEntities()
-    {
-        return _mappings.Values.SelectMany(m => m.Keys);
+        return _mappings
+            .Values
+            .SelectMany(mappings => mappings.Values)
+            .Count();
     }
 }

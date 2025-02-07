@@ -7,11 +7,21 @@ public class ClerkMigrator(ClerkRepository repository) : IMigrator
 {
     public void Migrate(MigrationContext context)
     {
-        foreach (var (sourceId, _) in context.GetMappingsFor<Clerk>())
+        foreach (var clerk in context.GetDiscoveredEntitiesOfType<Clerk>())
         {
-            var clerk = repository.GetById(sourceId);
+            var discoveredLawFirmParent = context
+                .GetDiscoveredEntitiesOfType<LawFirm>()
+                .SingleOrDefault(lawFirm => lawFirm.Id == clerk.LawFirmId);
+            
+            if (discoveredLawFirmParent is null)
+            {
+                continue;
+            }
 
-            clerk.LawFirmId = context.GetMappedId<LawFirm>(clerk.LawFirmId);
+            var destinationLawFirm = context
+                .GetMappedEntity(discoveredLawFirmParent);
+            
+            clerk.LawFirmId = destinationLawFirm.Id;
 
             repository.Update(clerk);
         }

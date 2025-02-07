@@ -7,13 +7,23 @@ public class ClaimMigrator(ClaimRepository repository) : IMigrator
 {
     public void Migrate(MigrationContext context)
     {
-        foreach (var (sourceId, _) in context.GetMappingsFor<Claim>())
+        foreach (var claim in context.GetDiscoveredEntitiesOfType<Claim>())
         {
-            var claim = repository.GetById(sourceId);
+            var discoveredDebtorParent = context
+                .GetDiscoveredEntitiesOfType<Debtor>()
+                .SingleOrDefault(debtor => debtor.Id == claim.DebtorId);
 
-            claim.LawFirmId = context.GetMappedId<LawFirm>(claim.LawFirmId);
-            claim.DebtorId = context.GetMappedId<Debtor>(claim.DebtorId);
+            if (discoveredDebtorParent is null)
+            {
+                continue;
+            }
             
+            var destinationDebtor = context
+                .GetMappedEntity(discoveredDebtorParent);
+            
+            claim.LawFirmId = destinationDebtor.LawFirmId;
+            claim.DebtorId = destinationDebtor.Id;
+
             repository.Update(claim);
         }
     }

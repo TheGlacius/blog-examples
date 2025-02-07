@@ -8,14 +8,14 @@ public class DebtorDiscoverer(DebtorRepository repository) : IDiscoverer
     public void Discover(MigrationContext context)
     {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var clerkId in context.GetMappingsFor<Clerk>().Keys)
+        foreach (var clerk in context.GetDiscoveredEntitiesOfType<Clerk>())
         {
-            var debtors = repository.GetByClerkId(clerkId);
+            var debtors = repository.GetByClerkId(clerk.Id);
             foreach (var debtor in debtors)
             {
-                if (!context.HasMapping<Debtor>(debtor.Id))
+                if (!context.IsDiscovered(debtor))
                 {
-                    context.DiscoverEntity<Debtor>(debtor.Id);
+                    context.DiscoverEntity(debtor);
                 }
             }
         }

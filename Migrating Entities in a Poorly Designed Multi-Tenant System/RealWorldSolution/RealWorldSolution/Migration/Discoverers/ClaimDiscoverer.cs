@@ -8,14 +8,14 @@ public class ClaimDiscoverer(ClaimRepository repository) : IDiscoverer
     public void Discover(MigrationContext context)
     {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var debtorId in context.GetMappingsFor<Debtor>().Keys)
+        foreach (var debtor in context.GetDiscoveredEntitiesOfType<Debtor>())
         {
-            var claims = repository.GetByDebtorId(debtorId);
+            var claims = repository.GetByDebtorId(debtor.Id);
             foreach (var claim in claims)
             {
-                if (!context.HasMapping<Claim>(claim.Id))
+                if (!context.IsDiscovered(claim))
                 {
-                    context.DiscoverEntity<Claim>(claim.Id);
+                    context.DiscoverEntity(claim);
                 }
             }
         }

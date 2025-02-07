@@ -7,12 +7,22 @@ public class DebtorMigrator(DebtorRepository repository) : IMigrator
 {
     public void Migrate(MigrationContext context)
     {
-        foreach (var (sourceId, _) in context.GetMappingsFor<Debtor>())
+        foreach (var debtor in context.GetDiscoveredEntitiesOfType<Debtor>())
         {
-            var debtor = repository.GetById(sourceId);
+            var discoveredClerkParent = context
+                .GetDiscoveredEntitiesOfType<Clerk>()
+                .SingleOrDefault(clerk => clerk.Id == debtor.ClerkId);
 
-            debtor.LawFirmId = context.GetMappedId<LawFirm>(debtor.LawFirmId);
-            debtor.ClerkId = context.GetMappedId<Clerk>(debtor.ClerkId);
+            if (discoveredClerkParent is null)
+            {
+                continue;
+            }
+            
+            var destinationClerk = context
+                .GetMappedEntity(discoveredClerkParent);
+            
+            debtor.LawFirmId = destinationClerk.LawFirmId;
+            debtor.ClerkId = destinationClerk.Id;
 
             repository.Update(debtor);
         }

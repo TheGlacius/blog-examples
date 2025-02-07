@@ -1,4 +1,4 @@
-﻿using RealWorldSolution.Models;
+using RealWorldSolution.Models;
 using RealWorldSolution.Repositories;
 
 namespace RealWorldSolution.Migration.Discoverers;
@@ -8,14 +8,14 @@ public class ClerkDiscoverer(ClerkRepository repository) : IDiscoverer
     public void Discover(MigrationContext context)
     {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var lawFirmId in context.GetMappingsFor<LawFirm>().Keys)
+        foreach (var lawFirm in context.GetDiscoveredEntitiesOfType<LawFirm>())
         {
-            var clerks = repository.GetByLawFirmId(lawFirmId);
+            var clerks = repository.GetByLawFirmId(lawFirm.Id);
             foreach (var clerk in clerks)
             {
-                if (!context.HasMapping<Clerk>(clerk.Id))
+                if (!context.IsDiscovered(clerk))
                 {
-                    context.DiscoverEntity<Clerk>(clerk.Id);
+                    context.DiscoverEntity(clerk);
                 }
             }
         }
