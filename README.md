@@ -7,8 +7,7 @@ Example code for blog posts on [glacius.org](https://glacius.org), showcasing re
 ```
 blog-examples/
 ├── post-title/
-│   ├── real-world-solution/
-└── README.md
+    ├── real-world-solution/
 ```
 
 ## Purpose
