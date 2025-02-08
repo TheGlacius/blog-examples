@@ -8,18 +8,12 @@ Example code for blog posts on [blog.glacius.org](https://blog.glacius.org), sho
 blog-examples/
 ├── post-title/
 │   ├── real-world-solution/
-│   └── ideal-solution/
 └── README.md
 ```
 
 ## Purpose
 
 This repository contains example projects related to blog posts published on [glacius.org](https://glacius.org). Each directory corresponds to a specific post, featuring:
-
-- **Suboptimal Real-World Solutions:** Reflecting common mistakes or legacy design flaws and solutions within those architectures.
-- **Ideal Clean Architecture Solutions:** Demonstrating best practices and architectural improvements.
-
-The goal is to illustrate architectural principles through practical code examples.
 
 ## Contributing
 
