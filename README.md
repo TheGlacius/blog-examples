@@ -12,7 +12,7 @@ blog-examples/
 
 ## Purpose
 
-This repository contains example projects related to blog posts published on [glacius.org](https://glacius.org). Each directory corresponds to a specific post, featuring:
+This repository contains example projects related to blog posts published on [glacius.org](https://glacius.org). Each directory corresponds to a specific post.
 
 ## Contributing
 
