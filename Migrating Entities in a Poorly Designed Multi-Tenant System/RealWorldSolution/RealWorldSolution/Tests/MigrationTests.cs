@@ -51,6 +51,7 @@ public class MigrationTests
         // Discoverers & Migrators
         var discoverers = new List<IDiscoverer>
         {
+            new ClerkDiscoverer(clerkRepository),
             new DebtorDiscoverer(debtorRepository),
             new ClaimDiscoverer(claimRepository)
         };
@@ -135,27 +136,22 @@ public class MigrationTests
     public void Migrate_Claim_From_One_Debtor_To_Another()
     {
         // Arrange
-        var lawFirm = new LawFirm();
-        var clerk = new Clerk { LawFirmId = lawFirm.Id };
-
-        var debtor1 = new Debtor { ClerkId = clerk.Id, LawFirmId = lawFirm.Id };
-        var debtor2 = new Debtor { ClerkId = clerk.Id, LawFirmId = lawFirm.Id };
-
-        var claim = new Claim { DebtorId = debtor1.Id, LawFirmId = lawFirm.Id };
-
-        // Repositories
-        var lawFirmRepo = new LawFirmRepository();
-        lawFirmRepo.Add(lawFirm);
-
+        var lawFirmRepository = new LawFirmRepository();
         var clerkRepository = new ClerkRepository();
-        clerkRepository.Add(clerk);
-
         var debtorRepository = new DebtorRepository();
-        debtorRepository.Add(debtor1);
-        debtorRepository.Add(debtor2);
-
         var claimRepository = new ClaimRepository();
-        claimRepository.Add(claim);
+        
+        var lawFirm = new LawFirm();
+        lawFirmRepository.Add(lawFirm);
+        
+        var clerk = new Clerk { LawFirmId = lawFirm.Id };
+        clerkRepository.Add(clerk);
+        
+        var unaffectedDebtor = CreateDebtorWithClaims(clerk, debtorRepository, claimRepository);
+        
+        var debtorToMigrateFrom = CreateDebtorWithClaims(clerk, debtorRepository, claimRepository);
+        
+        var debtorToMigrateTo = CreateDebtorWithClaims(clerk, debtorRepository, claimRepository);
 
         // Discoverers & Migrators
         var discoverers = new List<IDiscoverer>
@@ -167,14 +163,14 @@ public class MigrationTests
 
         var migrators = new List<IMigrator>
         {
-            new ClaimMigrator(claimRepository),
             new ClerkMigrator(clerkRepository),
-            new DebtorMigrator(debtorRepository)
+            new DebtorMigrator(debtorRepository),
+            new ClaimMigrator(claimRepository)
         };
 
         // Pre-populated MigrationContext
         var migrationContext = new MigrationContext();
-        migrationContext.RegisterMapping(debtor1, debtor2);
+        migrationContext.RegisterMapping(debtorToMigrateFrom, debtorToMigrateTo);
 
         var orchestrator = new Orchestrator(discoverers, migrators);
 
@@ -182,7 +178,54 @@ public class MigrationTests
         orchestrator.Orchestrate(migrationContext);
 
         // Assert
-        Assert.Equal(debtor2.Id, claimRepository.GetById(claim.Id).DebtorId);
+        
+        // Unaffected debtor is still unaffected
+        var unaffectedDebtorAfterMigration = debtorRepository
+            .GetById(unaffectedDebtor.Id);
+
+        Assert.Equal(lawFirm.Id, unaffectedDebtorAfterMigration.LawFirmId);
+        Assert.Equal(clerk.Id, unaffectedDebtorAfterMigration.ClerkId);
+
+        var claimsOfUnaffectedDebtorAfterMigration = claimRepository
+            .GetByDebtorId(unaffectedDebtorAfterMigration.Id)
+            .ToList();
+        
+        Assert.Equal(2, claimsOfUnaffectedDebtorAfterMigration.Count);
+
+        foreach (var claim in claimsOfUnaffectedDebtorAfterMigration)
+        {
+            Assert.Equal(lawFirm.Id, claim.LawFirmId);
+        }
+        
+        // Debtor to migrate has not changed and has no claims
+        var debtorToMigrateFromAfterMigration = debtorRepository
+            .GetById(debtorToMigrateFrom.Id);
+        
+        Assert.Equal(lawFirm.Id, debtorToMigrateFromAfterMigration.LawFirmId);
+        Assert.Equal(clerk.Id, debtorToMigrateFromAfterMigration.ClerkId);
+
+        var clerksOfDebtorToMigrateFromAfterMigration = claimRepository
+            .GetByDebtorId(debtorToMigrateFromAfterMigration.Id);
+        
+        Assert.Empty(clerksOfDebtorToMigrateFromAfterMigration);
+        
+        // Debtor to migrate to has now 4 claims but nothing else changed
+        var debtorToMigrateToAfterMigration = debtorRepository
+            .GetById(debtorToMigrateTo.Id);
+
+        Assert.Equal(lawFirm.Id, debtorToMigrateToAfterMigration.LawFirmId);
+        Assert.Equal(clerk.Id, debtorToMigrateToAfterMigration.ClerkId);
+        
+        var claimsOfDebtorToMigrateToAfterMigration = claimRepository
+            .GetByDebtorId(debtorToMigrateToAfterMigration.Id)
+            .ToList();
+        
+        Assert.Equal(4, claimsOfDebtorToMigrateToAfterMigration.Count);
+        
+        foreach (var claim in claimsOfDebtorToMigrateToAfterMigration)
+        {
+            Assert.Equal(lawFirm.Id, claim.LawFirmId);
+        }
     }
     
     private static Clerk CreateClerkWithDebtorsAndClaims(
@@ -220,5 +263,4 @@ public class MigrationTests
         claimRepository.Add(claim);
         return claim;
     }
-
 }
