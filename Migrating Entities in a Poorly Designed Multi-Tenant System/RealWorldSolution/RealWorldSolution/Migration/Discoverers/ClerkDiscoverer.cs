@@ -7,7 +7,6 @@ public class ClerkDiscoverer(ClerkRepository repository) : IDiscoverer
 {
     public void Discover(MigrationContext context)
     {
-        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var lawFirm in context.GetDiscoveredEntitiesOfType<LawFirm>())
         {
             var clerks = repository.GetByLawFirmId(lawFirm.Id);

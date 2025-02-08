@@ -7,7 +7,6 @@ public class ClaimDiscoverer(ClaimRepository repository) : IDiscoverer
 {
     public void Discover(MigrationContext context)
     {
-        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var debtor in context.GetDiscoveredEntitiesOfType<Debtor>())
         {
             var claims = repository.GetByDebtorId(debtor.Id);
