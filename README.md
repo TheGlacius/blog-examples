@@ -1,6 +1,6 @@
 # Blog Examples
 
-Example code for blog posts on [blog.glacius.org](https://blog.glacius.org), showcasing real-world architectural challenges and solutions.
+Example code for blog posts on [glacius.org](https://glacius.org), showcasing real-world architectural challenges and solutions.
 
 ## Repository Structure
 
