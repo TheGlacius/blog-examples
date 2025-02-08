@@ -14,13 +14,13 @@ public class MigrationContext
             .Select(o => (T) o) ?? [];
     }
 
-    public void RegisterMapping<T>(T from, T to) where T : class
+    public void RegisterMapping<T>(T source, T destination) where T : class
     {
         if (!_mappings.ContainsKey(typeof(T)))
         {
             _mappings[typeof(T)] = new Dictionary<object, object>();
         }
-        _mappings[typeof(T)].Add(from, to);
+        _mappings[typeof(T)].Add(source, destination);
     }
     
     public void DiscoverEntity<T>(T entity) where T : class
